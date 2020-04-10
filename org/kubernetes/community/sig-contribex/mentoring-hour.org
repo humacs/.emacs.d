@@ -1,0 +1,99 @@
+# -*- ii: comentoring; -*-
+#+TITLE: Mentoring Hour Improvements
+* A Templated Startup Process 
+
+At @ii we use a templating system to capture our pairing worksflows based on [org-mode](https://orgmode.org/).
+
+We may find it useful to cherry pick some ideas from it and create a few templated ways to start a mentoring session.
+
+It's also great in that the output is available in ~text~, ~markdown~ and an ~html presentation~.
+
+It may get even more interesting if we integrate [asciinema](https://asciinema.org/)
+
+https://github.com/kubemacs/kubemacs/tree/master/org/cncf/apisnoop#environment-for-docker-init
+
+** variables
+We set some variables for the list of repositories, who is pairing together and the specific workflow/org file.
+
+Note that our workflow has a [test-writing.org](https://github.com/cncf/apisnoop/blob/master/test-writing.org#test-writing) as the target, which brings up an [auditsink that logs](https://github.com/cncf/apisnoop/blob/master/apps/auditlogger/app/auditlogger.js) to apisnoop so you have a way to query what your kubernetes interactions are doing in cluster as far as the groups and hopefully matching to sigs.
+
+#+begin_src shell
+KUBEMACS_GIT_EMAIL=hh@ii.coop
+KUBEMACS_GIT_NAME="Hippie Hacker"
+KUBEMACS_TIMEZONE=Pacific/Auckland
+KUBEMACS_INIT_DEFAULT_REPOS='https://github.com/hh/apisnoop.git'
+KUBEMACS_INIT_ORG_FILE=apisnoop/test-writing.org
+#+end_src
+
+** docker run to create local cluster
+   We start with only requiring docker, but we map the docker socket of the host, into the container, which includes kind + kubectl. We think invites to nearly anyone being able to do this locally, though we could just as easily use a k8s community hosted cluster.
+
+This brings up kubemacs as a [stateful-set](https://github.com/kubemacs/kubemacs/blob/master/manifests/statefulset.yaml) so we know the name of the container is ~kubemacs-0~
+#+begin_src shell
+docker run \
+       --env-file $ENV_FILE \
+       --name kubemacs-docker-init \
+       --user root \
+       --privileged \
+       --network host \
+       --rm \
+       -it \
+       -v "$HOME/.kube:/tmp/.kube" \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       $KUBEMACS_IMAGE \
+       docker-init.sh
+#+end_src
+
+** kubectl exec attach
+
+     By default the above will connect and use osc52 to populate the clipboard with the content to paste to the other person. 
+
+I use the terminal via an OSC52 terminal, but the web works pretty good too. We are currently using @tmate-io
+
+Both *emacs* and *vim* work quite well in cluster.
+
+Another kiwi @chrisbarret made some software we use to explore the cluster from within emacs. [kubernetes-el](https://github.com/chrisbarrett/kubernetes-el)
+
+* tmate
+
+Tmate provides both ssh and web urls. The ssh urls can be pasted directly into terminals. The tmate binary by default uses the services hosted by tmate.io.
+
+I paired recently with the created of tmate @nviennot to ensure anyone could bring it up inside kind locally and just use a tmate.1.1.1.2.xip.io address successfully.
+
+We should probably run a service at *pairing.k8s.io* and default our configuration to use it.
+
+** kustomization for pairing.k8s.io
+
+I published my work with @nviennot here:
+
+https://github.com/kubemacs/kubemacs/tree/master/manifests/tmate
+
+But we would need to get wg-k8s-infra involved to run it there.
+
+* osc52 (kubectl exec populating clipboard)
+
+Since we work in cluster, we need a way for the terminal to back-haul copy/paste to the OS clipboard over kubectl exec. If we use a browser, I think we won't need it, but I really like working in my local terminal.
+
+While not necessary, it's nice to have [OSC52](https://chromium.googlesource.com/apps/libapps/+/master/hterm/etc/) support, and each OS has at least one option. It should be noted that both *vim* and *emacs* support OSC52.
+
+** Linux
+*** working
+- xterm
+*** not working (yet)
+Most others are based on libvte, which still needs support.
+- libvte: I opened gitlab.gnome.org/GNOME/vte#125](https://gitlab.gnome.org/GNOME/vte/-/issues/125)
+** Windows
+*** working
+- git-bash terminal
+*** not working (yet)
+- microsoft/terminal : See [microsoft/terminal#2946](https://github.com/microsoft/terminal/issues/2946)
+- Browsers: [nassh](https://chromium.googlesource.com/apps/libapps/+/master/nassh/doc/FAQ.md#Is-OSC-52-aka-clipboard-operations_supported)
+- Security discussions from 2017-2018
+  - https://seclists.org/oss-sec/2017/q2/197
+  - https://seclists.org/oss-sec/2018/q2/31
+** OSX
+*** working
+I can't recommend iTerm2 enough:
+- iTerm2.app
+*** not working (yet)
+- Terminal.app that ships with OSX
