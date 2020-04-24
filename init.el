@@ -6,7 +6,11 @@
 (message "iimacs: LOADING")
 ;; your .spacemacs will reside here
 ;(setq dotspacemacs-filepath (concat iimacs-dir ".spacemacs-" user-login-name)) ;; per user?
-(setq dotspacemacs-filepath (concat "~/.iimacs")) ;; per user?
+(if (getenv "DOTSPACEMACS_FILEPATH") (setq dotspacemacs-filepath (getenv "DOTSPACEMACS_FILEPATH"))
+  (setq dotspacemacs-filepath (concat "~/.iimacs"))
+  );; per user?
+;; (if (getenv "DOTSPACEMACS_URL") (download_to dotspacemacs-filepath (getenv "DOTSPACEMACS_URL"))
+;; TODO add an if then for if var SPACEMACS_FILE_PATH is set, set that path to this var, grabbing frome file or url depending, else ~/.iimacs
 ;; we used several emacs server/daemons and they try to 'steal' the recentf from each other
 (setq recentf-save-file (concat user-emacs-directory ".cache/recentf." server-name )) ;; per server
 ;;(setq (concat "~/.emacs.d/.spacemacs-" user-login-name)) ;; per user?
