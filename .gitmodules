@@ -1,6 +1,3 @@
-[submodule "spacemacs"]
-	path = spacemacs
-	url = https://github.com/syl20bnr/spacemacs.git
 [submodule "layers/emacs-reveal/local/emacs-reveal"]
 	path = layers/emacs-reveal/local/emacs-reveal
 	url = https://gitlab.com/oer/emacs-reveal
