@@ -1,7 +1,7 @@
 (setq
  auto-completion-enable-sort-by-usage t
  auto-completion-enable-help-tooltip t
- auto-completion-private-snippets-directory (expand-file-name (concat iimacs-dir "snippets"))
+ ;; auto-completion-private-snippets-directory (expand-file-name (concat iimacs-dir "snippets"))
  auto-completion-enable-snippets-in-popup t
  dotspacemacs-enable-server t
  dotspacemacs-persistent-server t
