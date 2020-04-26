@@ -578,7 +578,9 @@ alist, to ensure correct results."
 ;; This is the function intended to be run as a before-hack-local-variables-hook
 (defun ii/before-local-var-hacks()
   (message "BEGIN: ii/before-local-var-hacks")
-  (if (string-equal mode-name "Org")
+  ;; emacs 28
+  ;; (string-equal (car mode-name) "Org")
+  (if (string-equal (car mode-name) "Org")
       (if (alist-get 'ii file-local-variables-alist)
           (ii/before-local-org-hacks)
         )
